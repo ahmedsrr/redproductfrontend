@@ -80,15 +80,7 @@ export const api = {
         });
         return await handleResponse(response);
     } catch (error) {
-        // Fallback Mock pour permettre le test si le backend est éteint
-        console.warn("Backend inaccessible (getMe), utilisation du mock Admin.");
-        return {
-            id: 1,
-            name: "Admin Démo",
-            email: "demo@red.com",
-            role: "admin",
-            avatar: "https://ui-avatars.com/api/?name=Admin+Demo&background=random"
-        };
+        throw error;
     }
   },
 
@@ -102,18 +94,7 @@ export const api = {
         return await handleResponse(response);
     } catch (error: any) {
         console.error("Erreur Login:", error);
-        // Fallback Mock pour permettre l'accès immédiat au Dashboard
-        console.warn("Backend inaccessible, connexion en mode Mock.");
-        return {
-            user: {
-                id: 1,
-                name: "Admin Démo",
-                email: email,
-                role: "admin", // Force admin pour voir le bouton créer
-                avatar: "https://ui-avatars.com/api/?name=Admin+Demo&background=random"
-            },
-            token: "mock-token-123456"
-        };
+        throw new Error(error.message || "Erreur de connexion au serveur");
     }
   },
 
@@ -273,16 +254,7 @@ export const api = {
         return await handleResponse(response);
     } catch (error: any) {
         console.error("Erreur createHotel", error);
-        // Simulation de réussite si le backend est offline
-        console.warn("Backend inaccessible, simulation de création.");
-        return {
-            id: Math.floor(Math.random() * 1000),
-            name: formData.get('name') as string,
-            address: formData.get('address') as string,
-            price: formData.get('price') as string,
-            image: "https://placehold.co/600x400?text=New+Hotel",
-            description: formData.get('description') as string
-        };
+        throw error;
     }
   }
 };
