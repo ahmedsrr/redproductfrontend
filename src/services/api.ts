@@ -89,6 +89,7 @@ export const api = {
         const response = await fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            credentials: "include",
             body: JSON.stringify({ email, password }),
         });
         return await handleResponse(response);
@@ -105,6 +106,7 @@ export const api = {
         const response = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            credentials: "include",
             body: JSON.stringify({ name, email, password, password_confirmation: password }),
         });
         return await handleResponse(response);
@@ -122,6 +124,8 @@ export const api = {
         await fetch(`${API_URL}/logout`, {
             method: 'POST',
             headers: getHeaders(),
+            credentials: "include",
+
         });
     } catch (e) {
         console.error("Erreur logout api", e);
@@ -133,6 +137,8 @@ export const api = {
         const response = await fetch(`${API_URL}/forgot-password`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            credentials: "include",
+
             body: JSON.stringify({ email }),
         });
         return await handleResponse(response);
