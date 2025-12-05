@@ -10,7 +10,8 @@ import { ProductsContent } from './pages/dashboard/ProductsContent';
 import { HotelsContent } from './pages/dashboard/HotelsContent';
 import { CreateHotelPage } from './CreateHotelPage';
 
-// Wrapper for protected routes (Authenticated users)
+
+// Wrapper pour les routes strictement protégées (ex: Création)
 const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
@@ -31,33 +32,23 @@ const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
   );
 };
 
-// Wrapper for Admin only routes
-const AdminRoute = ({ children }: { children?: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+// Wrapper public : Affiche le Layout Dashboard même si non connecté
+const PublicDashboardRoute = ({ children }: { children?: React.ReactNode }) => {
+    const { loading } = useAuth();
+    if (loading) return null;
 
-  if (loading) return null;
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (user.role !== 'admin') {
-    // Redirige vers la liste des hôtels si l'utilisateur n'est pas admin
-    return <Navigate to="/hotels" replace />;
-  }
-
-  return (
-    <DashboardLayout>
-      {children}
-    </DashboardLayout>
-  );
+    return (
+        <DashboardLayout>
+            {children}
+        </DashboardLayout>
+    );
 };
 
-// Wrapper for public routes (redirects to dashboard if already logged in)
-const PublicRoute = ({ children }: { children?: React.ReactNode }) => {
+// Wrapper pour les pages Login/Register (redirige vers dashboard si déjà connecté)
+const GuestRoute = ({ children }: { children?: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
-  if (loading) return null; // Or a spinner
+  if (loading) return null; 
   
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -70,23 +61,21 @@ export const App = () => (
   <AuthProvider>
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
-        <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
- {/* Route création accessible à tous (changement de AdminRoute -> ProtectedRoute) */}
+        {/* Pages d'authentification */}
+        <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+        <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+        <Route path="/forgot-password" element={<GuestRoute><ForgotPasswordPage /></GuestRoute>} />
+
+        {/* Pages accessibles publiquement (avec Layout Dashboard) */}
+        <Route path="/dashboard" element={<PublicDashboardRoute><DashboardContent /></PublicDashboardRoute>} />
+        <Route path="/hotels" element={<PublicDashboardRoute><HotelsContent /></PublicDashboardRoute>} />
+        <Route path="/products" element={<PublicDashboardRoute><ProductsContent /></PublicDashboardRoute>} />
+        
+        {/* Pages strictement protégées (Nécessite connexion) */}
         <Route path="/hotels/create" element={<ProtectedRoute><CreateHotelPage /></ProtectedRoute>} />
         
-        {/* Protected Routes (All users) */}
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardContent /></ProtectedRoute>} />
-        <Route path="/hotels" element={<ProtectedRoute><HotelsContent /></ProtectedRoute>} />
-        <Route path="/products" element={<ProtectedRoute><ProductsContent /></ProtectedRoute>} />
-        
-        {/* Admin Routes */}
-        <Route path="/hotels/create" element={<AdminRoute><CreateHotelPage /></AdminRoute>} />
-        
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* Redirection par défaut vers le Dashboard au lieu du Login */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   </AuthProvider>
