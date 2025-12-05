@@ -1,5 +1,7 @@
 
 
+
+            
 export interface User {
   id: number;
   name: string;
@@ -27,7 +29,7 @@ export interface Product {
 }
 
 // Configuration de l'URL du Backend Laravel
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = 'http://127.0.0.1:8000/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('auth_token');
@@ -89,7 +91,6 @@ export const api = {
         const response = await fetch(`${API_URL}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            credentials: "include",
             body: JSON.stringify({ email, password }),
         });
         return await handleResponse(response);
@@ -106,7 +107,6 @@ export const api = {
         const response = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            credentials: "include",
             body: JSON.stringify({ name, email, password, password_confirmation: password }),
         });
         return await handleResponse(response);
@@ -124,8 +124,6 @@ export const api = {
         await fetch(`${API_URL}/logout`, {
             method: 'POST',
             headers: getHeaders(),
-            credentials: "include",
-
         });
     } catch (e) {
         console.error("Erreur logout api", e);
@@ -137,8 +135,6 @@ export const api = {
         const response = await fetch(`${API_URL}/forgot-password`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            credentials: "include",
-
             body: JSON.stringify({ email }),
         });
         return await handleResponse(response);
@@ -174,8 +170,7 @@ export const api = {
         console.warn("API Hôtels inaccessible ou vide, utilisation des données locales (Mock).", error);
         
         // DONNÉES DE SECOURS (MOCK AVEC IMAGES LOCALES)
-        // ATTENTION : Pour que les images s'affichent, les fichiers doivent exister dans :
-        // ROOT/public/images/hotels/terrou-bi.jpg (pas dans src !)
+        // Les images doivent être placées dans le dossier 'public/images/hotels/'
         return [
           {
             id: 1,
