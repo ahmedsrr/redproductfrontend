@@ -29,7 +29,7 @@ export interface Product {
 }
 
 // Configuration de l'URL du Backend Laravel
-const API_URL = 'https://redproductbackend-production.up.railway.app';
+const API_URL = import.meta.env.VITE_APP_API_URL;
 
 const getHeaders = () => {
   const token = localStorage.getItem('auth_token');
