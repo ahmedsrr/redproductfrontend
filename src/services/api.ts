@@ -164,7 +164,7 @@ export const api = {
         });
         // Si le backend répond correctement, on retourne les données
         const data = await handleResponse(response);
-        // Si le tableau est vide (base de données vierge), on retourne quand même le mock pour la démo
+        // Si le tableau est vide (base de données vierge), on retourne les donnees locales
         if (Array.isArray(data) && data.length === 0) throw new Error("Empty DB");
         return data;
     } catch (error: any) {
@@ -240,6 +240,31 @@ export const api = {
         ];
     }
   },
+
+            // Récupération des utilisateurs (pour le dashboard)
+  getUsers: async (): Promise<User[]> => {
+    try {
+        const response = await fetch(`${API_URL}/users`, {
+            method: 'GET',
+            headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+        });
+        const data = await handleResponse(response);
+        if (Array.isArray(data) && data.length === 0) throw new Error("Empty DB");
+        return data;
+    } catch (error) {
+        console.warn("API Users inaccessible ou vide, utilisation mock.", error);
+        // Fallback Mock Data si l'API n'a pas la route /users
+        return [
+            { id: 1, name: "Admin User", email: "admin@red.com", role: "admin" },
+            { id: 2, name: "John Doe", email: "john@test.com", role: "user" },
+            { id: 3, name: "Jane Smith", email: "jane@test.com", role: "user" },
+            { id: 4, name: "Alice Cooper", email: "alice@test.com", role: "user" },
+            { id: 5, name: "Bob Marley", email: "bob@test.com", role: "user" }
+        ];
+    }
+  },
+
+ 
 
   createHotel: async (formData: FormData): Promise<Hotel> => {
     try {
