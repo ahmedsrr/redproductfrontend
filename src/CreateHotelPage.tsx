@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { api } from './services/api';
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
+
+
 export const CreateHotelPage = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,8 +44,13 @@ export const CreateHotelPage = () => {
       const data = new FormData();
       data.append('name', formData.name);
       data.append('address', formData.address);
-      data.append('price', `${formData.price} ${formData.currency} par nuit`); // Formatage du prix pour correspondre à la DB
-      data.append('description', `Email: ${formData.email}, Tél: ${formData.phone}`); // On stocke les contacts dans la description pour l'instant
+      
+      // Sending raw number for price as requested
+      data.append('price', formData.price); 
+      // Sending currency as a separate field if supported, or for consistency
+      data.append('currency', formData.currency);
+
+      data.append('description', `Email: ${formData.email}, Tél: ${formData.phone}`);
       
       if (imageFile) {
         data.append('image', imageFile);
@@ -110,7 +117,7 @@ export const CreateHotelPage = () => {
                  id="hotel-price"
                  value={formData.price}
                  onChange={(e) => setFormData({...formData, price: e.target.value})}
-                 placeholder="25.000"
+                 placeholder="25000"
                  className="!mb-0"
                  required
                />
