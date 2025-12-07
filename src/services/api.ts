@@ -65,8 +65,8 @@ const getHeaders = () => {
             throw new Error(`Erreur serveur (${response.status}). Le serveur a renvoyé une page HTML au lieu de JSON. Vérifiez les logs Laravel.`);
         }
         return null; 
-    }
-};
+    };
+
 
 export const api = {
   // Récupère l'utilisateur courant via le Token JWT
