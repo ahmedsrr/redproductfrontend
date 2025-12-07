@@ -42,7 +42,12 @@ const getHeaders = () => {
   return headers;
 };
 
-
+// Helper pour gérer les réponses
+const handleResponse = async (response: Response) => {
+    // Vérification spécifique pour l'erreur 404 (Route non définie côté Laravel)
+    if (response.status === 404) {
+        throw new Error(`Erreur 404: La route '${response.url}' n'existe pas sur le serveur Laravel. Exécutez 'php artisan route:list' pour vérifier vos routes. Assurez-vous d'avoir exécuté 'php artisan install:api' (Laravel 11) et 'php artisan route:clear'.`);
+    }
 
     const contentType = response.headers.get("content-type");
     
@@ -65,7 +70,8 @@ const getHeaders = () => {
             throw new Error(`Erreur serveur (${response.status}). Le serveur a renvoyé une page HTML au lieu de JSON. Vérifiez les logs Laravel.`);
         }
         return null; 
-    };
+    }
+};
 
 
 export const api = {
