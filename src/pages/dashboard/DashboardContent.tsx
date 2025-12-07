@@ -20,7 +20,7 @@ export const DashboardContent = () => {
     },
     { 
       label: 'Utilisateurs', 
-      value: userCount, 
+      value: '3', 
       desc: 'Utilisateurs inscrits', 
       icon: Icons.UsersGroup, 
       color: 'bg-[#FFBE00]', // Yellow
@@ -36,7 +36,7 @@ export const DashboardContent = () => {
     },
     { 
       label: 'Hôtels', 
-      value: hotelCount, 
+      value: '5', 
       desc: 'Hotels enregistrés', 
       icon: Icons.P_Letter, 
       color: 'bg-[#9C27B0]', // Darker Purple
