@@ -13,6 +13,7 @@ export interface Hotel {
   address: string;
   price: string;
   image: string;
+  image_url?: string;
   description?: string;
 }
 
