@@ -7,13 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 
-import { useState,useEffect } from 'react';
-import { api, Hotel } from '../../services/api';
-import { Icons } from '../../components/icons/Icons';
-import { Button } from '../../components/ui/Button';
-import { useNavigate } from 'react-router-dom';
 
-import { useAuth } from '../../contexts/AuthContext';
 
 
 
