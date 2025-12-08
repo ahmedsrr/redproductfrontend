@@ -5,7 +5,7 @@ export const DashboardContent = () => {
     { 
       label: 'Formulaires', 
       value: '125', 
-      desc: '125 demandes de reservations ont été rédigé', 
+      desc: 'Demandes de reservation', 
       icon: Icons.Envelope, 
       color: 'bg-[#A88ADD]', // Purple
       iconColor: 'text-white'
@@ -13,7 +13,7 @@ export const DashboardContent = () => {
     { 
       label: 'Messages', 
       value: '40', 
-      desc: 'Vous avez reçu 40 messages', 
+      desc: 'Messages reçus', 
       icon: Icons.P_Letter, 
       color: 'bg-[#00C4B4]', // Teal
       iconColor: 'text-white'
@@ -36,7 +36,7 @@ export const DashboardContent = () => {
     },
     { 
       label: 'Hôtels', 
-      value: '5', 
+      value: '8', 
       desc: 'Hotels enregistrés', 
       icon: Icons.P_Letter, 
       color: 'bg-[#9C27B0]', // Darker Purple
