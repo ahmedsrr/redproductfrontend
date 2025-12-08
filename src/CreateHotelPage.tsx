@@ -46,10 +46,11 @@ export const CreateHotelPage = () => {
       
       // Sending raw number for price as requested
       data.append('price', formData.price); 
+      data.append('email', formData.email);
+      data.append('phone', formData.phone); 
       // Sending currency as a separate field if supported, or for consistency
       data.append('currency', formData.currency);
 
-      data.append('description', `Email: ${formData.email}, Tél: ${formData.phone}`);
       
       if (imageFile) {
         data.append('image', imageFile);
