@@ -28,8 +28,7 @@ export interface Product {
 }
 
 // Configuration de l'URL pour la PRODUCTION
-export const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
-const API_URL = `${API_BASE_URL}/api`;
+const API_URL = import.meta.env.VITE_APP_API_URL;
 
 const getHeaders = () => {
   const token = localStorage.getItem('auth_token');
