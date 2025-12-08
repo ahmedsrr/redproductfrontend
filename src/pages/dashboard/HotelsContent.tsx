@@ -70,6 +70,7 @@ export const HotelsContent = () => {
                                 console.error(`Erreur chargement image pour ${hotel.name}:`, hotel.image_url);
                                 // Fallback si l'image ne charge pas
                                 (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=No+Image';
+                              e.target.onerror = null;
                             }}
                         />
                         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all duration-300"></div>
