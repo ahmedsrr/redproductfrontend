@@ -1,7 +1,5 @@
 
 
-
-            
 export interface User {
   id: number;
   name: string;
@@ -15,9 +13,10 @@ export interface Hotel {
   id: number;
   name: string;
   address: string;
-  price: string;
+  price: string | number;
   image: string;
   description?: string;
+  currency?: string;
 }
 
 export interface Product {
@@ -28,13 +27,15 @@ export interface Product {
   status: 'Active' | 'Out of Stock' | 'Low Stock';
 }
 
-// Configuration de l'URL du Backend Laravel
-const API_URL = import.meta.env.VITE_APP_API_URL;
+// Configuration de l'URL pour la PRODUCTION
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+const API_URL = `${API_BASE_URL}/api`;
 
 const getHeaders = () => {
   const token = localStorage.getItem('auth_token');
   const headers: HeadersInit = {
     'Accept': 'application/json',
+    // Pas de Content-Type par défaut pour permettre FormData
   };
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -44,9 +45,8 @@ const getHeaders = () => {
 
 // Helper pour gérer les réponses
 const handleResponse = async (response: Response) => {
-    // Vérification spécifique pour l'erreur 404 (Route non définie côté Laravel)
     if (response.status === 404) {
-        throw new Error(`Erreur 404: La route '${response.url}' n'existe pas sur le serveur Laravel. Exécutez 'php artisan route:list' pour vérifier vos routes. Assurez-vous d'avoir exécuté 'php artisan install:api' (Laravel 11) et 'php artisan route:clear'.`);
+        throw new Error(`Erreur 404: La route '${response.url}' est introuvable sur le serveur.`);
     }
 
     const contentType = response.headers.get("content-type");
@@ -54,36 +54,38 @@ const handleResponse = async (response: Response) => {
     if (contentType && contentType.includes("application/json")) {
         const data = await response.json();
         if (!response.ok) {
-            // Gestion fine des erreurs de validation Laravel (422)
             if (data.errors) {
                 const firstErrorKey = Object.keys(data.errors)[0];
                 throw new Error(data.errors[firstErrorKey][0]);
             }
-            throw new Error(data.message || 'Une erreur est survenue');
+            throw new Error(data.message || `Erreur ${response.status}: Une erreur est survenue`);
         }
         return data;
     } else {
-        // Fallback si le serveur renvoie du HTML (ex: erreur 500 Laravel par défaut)
         const text = await response.text();
         console.error("Réponse non-JSON du serveur:", text);
-        if (!response.ok) {
-            throw new Error(`Erreur serveur (${response.status}). Le serveur a renvoyé une page HTML au lieu de JSON. Vérifiez les logs Laravel.`);
-        }
-        return null; 
+        throw new Error(`Erreur serveur (${response.status}). Le serveur a renvoyé du HTML au lieu de JSON.`);
     }
 };
 
+const handleNetworkError = (error: any) => {
+    console.error("Erreur API:", error);
+    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+         throw new Error(`Impossible de contacter le serveur à l'adresse ${API_URL}. Vérifiez votre connexion ou la configuration CORS.`);
+    }
+    throw error;
+};
 
 export const api = {
-  // Récupère l'utilisateur courant via le Token JWT
   getMe: async (): Promise<User> => {
     try {
         const response = await fetch(`${API_URL}/user`, {
-            headers: getHeaders(),
+            method: 'GET',
+            headers: { ...getHeaders(), 'Content-Type': 'application/json' },
         });
         return await handleResponse(response);
     } catch (error) {
-        throw error;
+        throw handleNetworkError(error);
     }
   },
 
@@ -96,15 +98,12 @@ export const api = {
         });
         return await handleResponse(response);
     } catch (error: any) {
-        console.error("Erreur Login:", error);
-        throw new Error(error.message || "Erreur de connexion au serveur");
+        throw handleNetworkError(error);
     }
   },
 
   register: async (name: string, email: string, password: string): Promise<{ user: User; token: string }> => {
     try {
-        // Note: On envoie password_confirmation = password pour satisfaire la validation Laravel 'confirmed'
-        // sans obliger l'utilisateur à le saisir deux fois.
         const response = await fetch(`${API_URL}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -112,11 +111,7 @@ export const api = {
         });
         return await handleResponse(response);
     } catch (error: any) {
-        console.error("Erreur Register:", error);
-        if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-             throw new Error("Impossible de contacter le serveur Laravel. Vérifiez qu'il est lancé (php artisan serve).");
-        }
-        throw error;
+        throw handleNetworkError(error);
     }
   },
 
@@ -140,40 +135,50 @@ export const api = {
         });
         return await handleResponse(response);
     } catch (error: any) {
-        throw new Error(error.message || "Erreur serveur");
+        throw handleNetworkError(error);
     }
   },
 
   getProducts: async (): Promise<Product[]> => {
     try {
         const response = await fetch(`${API_URL}/products`, {
-            headers: getHeaders(),
+            method: 'GET',
+            headers: { ...getHeaders(), 'Content-Type': 'application/json' },
         });
         if (!response.ok) return []; 
-        return await response.json();
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
     } catch (e) {
-        console.error("Erreur getProducts", e);
         return [];
     }
   },
 
-  getHotels: async (): Promise<Hotel[]> => {
+  getUsers: async (): Promise<User[]> => {
     try {
-        const response = await fetch(`${API_URL}/hotels`, {
-            headers: getHeaders(),
+        const response = await fetch(`${API_URL}/users`, {
+            method: 'GET',
+            headers: { ...getHeaders(), 'Content-Type': 'application/json' },
         });
-        // Si le backend répond correctement, on retourne les données
         const data = await handleResponse(response);
-        // Si le tableau est vide (base de données vierge), on retourne les donnees locales
         if (Array.isArray(data) && data.length === 0) throw new Error("Empty DB");
         return data;
-    } catch (error: any) {
-        console.warn("API Hôtels inaccessible ou vide, utilisation des données locales (Mock).", error);
-        
-        // DONNÉES DE SECOURS (MOCK AVEC IMAGES LOCALES)
-        // Les images doivent être placées dans le dossier 'public/images/hotels/'
+    } catch (error) {
+        console.warn("API Users inaccessible ou vide, utilisation mock.", error);
         return [
-          {
+            { id: 1, name: "Admin User", email: "admin@red.com", role: "admin" },
+            { id: 2, name: "John Doe", email: "john@test.com", role: "user" },
+            { id: 3, name: "Jane Smith", email: "jane@test.com", role: "user" },
+            { id: 4, name: "Alice Cooper", email: "alice@test.com", role: "user" },
+            { id: 5, name: "Bob Marley", email: "bob@test.com", role: "user" }
+        ];
+    }
+  },
+
+  // Récupération des hôtels : Mock + API Réelle
+  getHotels: async (search: string = ''): Promise<Hotel[]> => {
+    // DONNÉES DE SECOURS (MOCK)
+    const mockHotels = [
+        {
             id: 1,
             name: "Hôtel Terrou-Bi",
             address: "Boulevard Martin Luther King Dakar, 11500",
@@ -237,34 +242,44 @@ export const api = {
             image: "/images/hotels/pullman-2.jpg",
             description: "L'excellence au centre-ville."
           }
-        ];
-    }
-  },
+    ];
 
-            // Récupération des utilisateurs (pour le dashboard)
-  getUsers: async (): Promise<User[]> => {
+    let combinedHotels = [...mockHotels];
+
     try {
-        const response = await fetch(`${API_URL}/users`, {
+        const url = search 
+            ? `${API_URL}/hotels?search=${encodeURIComponent(search)}` 
+            : `${API_URL}/hotels`;
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: { ...getHeaders(), 'Content-Type': 'application/json' },
         });
-        const data = await handleResponse(response);
-        if (Array.isArray(data) && data.length === 0) throw new Error("Empty DB");
-        return data;
+        
+        // Si l'API marche, on récupère les vraies données
+        if (response.ok) {
+            const realHotels = await response.json();
+            if (Array.isArray(realHotels)) {
+                // On fusionne les mocks et les vrais (les vrais en premier ou dernier selon préférence)
+                // Ici on met les vrais hôtels APRÈS les mocks pour respecter la demande "8 + le nouveau"
+                combinedHotels = [...mockHotels, ...realHotels];
+            }
+        }
     } catch (error) {
-        console.warn("API Users inaccessible ou vide, utilisation mock.", error);
-        // Fallback Mock Data si l'API n'a pas la route /users
-        return [
-            { id: 1, name: "Admin User", email: "admin@red.com", role: "admin" },
-            { id: 2, name: "John Doe", email: "john@test.com", role: "user" },
-            { id: 3, name: "Jane Smith", email: "jane@test.com", role: "user" },
-            { id: 4, name: "Alice Cooper", email: "alice@test.com", role: "user" },
-            { id: 5, name: "Bob Marley", email: "bob@test.com", role: "user" }
-        ];
+        console.warn("API Hôtels inaccessible, affichage Mock uniquement.", error);
     }
-  },
 
- 
+    // Filtrage Local (client-side) sur l'ensemble combiné
+    if (search) {
+        const lowerSearch = search.toLowerCase();
+        return combinedHotels.filter(hotel => 
+            hotel.name.toLowerCase().includes(lowerSearch) || 
+            hotel.address.toLowerCase().includes(lowerSearch)
+        );
+    }
+
+    return combinedHotels;
+  },
 
   createHotel: async (formData: FormData): Promise<Hotel> => {
     try {
@@ -274,14 +289,12 @@ export const api = {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json',
-                // Important: ne pas définir Content-Type pour FormData, le navigateur le fait automatiquement avec les boundary
             },
             body: formData,
         });
         return await handleResponse(response);
     } catch (error: any) {
-        console.error("Erreur createHotel", error);
-        throw error;
+        throw handleNetworkError(error);
     }
   }
 };
