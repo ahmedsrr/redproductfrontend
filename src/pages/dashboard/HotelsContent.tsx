@@ -62,12 +62,12 @@ export const HotelsContent = () => {
                     {/* Image de l'hôtel */}
                     <div className="relative h-44 overflow-hidden">
                         <img 
-                            src={hotel.image} 
+                            src={hotel.image_url} 
                             alt={hotel.name} 
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
                             onError={(e) => {
                                 // Log l'erreur pour aider au débogage
-                                console.error(`Erreur chargement image pour ${hotel.name}:`, hotel.image);
+                                console.error(`Erreur chargement image pour ${hotel.name}:`, hotel.image_url);
                                 // Fallback si l'image ne charge pas
                                 (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=No+Image';
                             }}
