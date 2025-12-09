@@ -263,6 +263,43 @@ export const api = {
 
  
 
+let combinedHotels = [...mockHotels];
+
+    try {
+        const url = search 
+            ? `${API_URL}/hotels?search=${encodeURIComponent(search)}` 
+            : `${API_URL}/hotels`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+        });
+        
+        // Si l'API marche, on récupère les vraies données
+        if (response.ok) {
+            const realHotels = await response.json();
+            if (Array.isArray(realHotels)) {
+                // On fusionne les mocks et les vrais (les vrais en premier ou dernier selon préférence)
+                // Ici on met les vrais hôtels APRÈS les mocks pour respecter la demande "8 + le nouveau"
+                combinedHotels = [...mockHotels, ...realHotels];
+            }
+        }
+    } catch (error) {
+        console.warn("API Hôtels inaccessible, affichage Mock uniquement.", error);
+    }
+
+    // Filtrage Local (client-side) sur l'ensemble combiné
+    if (search) {
+        const lowerSearch = search.toLowerCase();
+        return combinedHotels.filter(hotel => 
+            hotel.name.toLowerCase().includes(lowerSearch) || 
+            hotel.address.toLowerCase().includes(lowerSearch)
+        );
+    }
+
+    return combinedHotels;
+  },
+
   createHotel: async (formData: FormData): Promise<Hotel> => {
     try {
         const token = localStorage.getItem('auth_token');
@@ -271,14 +308,12 @@ export const api = {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json',
-                // Important: ne pas définir Content-Type pour FormData, le navigateur le fait automatiquement avec les boundary
             },
             body: formData,
         });
         return await handleResponse(response);
     } catch (error: any) {
-        console.error("Erreur createHotel", error);
-        throw error;
+        throw handleNetworkError(error);
     }
   }
 };
