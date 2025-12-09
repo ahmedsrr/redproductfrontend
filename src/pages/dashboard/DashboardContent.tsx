@@ -1,33 +1,6 @@
 import { Icons } from '../../components/icons/Icons';
 
 export const DashboardContent = () => {
-  const navigate = useNavigate();
-  // Initialiser avec les valeurs Mock par défaut pour éviter un "0" temporaire disgracieux
-  // si le chargement est instantané ou en cas d'erreur.
-  const [counts, setCounts] = useState({ hotels: 8, users: 5 }); 
-
-  useEffect(() => {
-    const fetchData = async () => {
-        try {
-            // On récupère en parallèle pour être efficace
-            const [hotelsData, usersData] = await Promise.all([
-                api.getHotels(),
-                api.getUsers()
-            ]);
-            
-            setCounts({
-                hotels: Array.isArray(hotelsData) ? hotelsData.length : 8,
-                users: Array.isArray(usersData) ? usersData.length : 5
-            });
-        } catch (error) {
-            console.error("Erreur de chargement des données dashboard:", error);
-            // On garde les valeurs par défaut (Mock) en cas d'erreur
-        }
-    };
-
-    fetchData();
-  }, []);
-
   const cards = [
     { 
       label: 'Formulaires', 
@@ -47,8 +20,8 @@ export const DashboardContent = () => {
     },
     { 
       label: 'Utilisateurs', 
-      value: counts.users.toString(), 
-      desc: 'Utilisateurs inscrits', 
+      value: '600', 
+      desc: 'Je ne sais pas quoi mettre', 
       icon: Icons.UsersGroup, 
       color: 'bg-[#FFBE00]', // Yellow
       iconColor: 'text-white'
@@ -63,12 +36,11 @@ export const DashboardContent = () => {
     },
     { 
       label: 'Hôtels', 
-      value: counts.hotels.toString(), 
-      desc: 'Hôtels enregistrés', 
+      value: '40', 
+      desc: 'Je ne sais pas quoi mettre', 
       icon: Icons.P_Letter, 
       color: 'bg-[#9C27B0]', // Darker Purple
-      iconColor: 'text-white',
-      path: '/hotels'
+      iconColor: 'text-white'
     },
     { 
       label: 'Entités', 
@@ -89,11 +61,7 @@ export const DashboardContent = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cards.map((card, i) => (
-          <div 
-            key={i} 
-            className={`bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center gap-4 transition-transform hover:scale-105 ${card.path ? 'cursor-pointer' : ''}`}
-            onClick={() => card.path ? navigate(card.path) : null}
-          >
+          <div key={i} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center gap-4">
              <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${card.color} ${card.iconColor}`}>
                 <card.icon />
              </div>
@@ -110,4 +78,3 @@ export const DashboardContent = () => {
     </div>
   );
 };
-
