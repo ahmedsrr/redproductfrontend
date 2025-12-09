@@ -60,14 +60,7 @@ export const HotelsContent = () => {
     }
   };
 
-  // Helper pour construire l'URL complète de l'image
-  const getImageUrl = (imagePath: string) => {
-      if (!imagePath) return 'https://placehold.co/600x400?text=No+Image';
-      if (imagePath.startsWith('http')) return imagePath;
-      // Si c'est un chemin relatif (ex: hotels/abc.jpg), on ajoute l'URL du storage
-      return `${API_BASE_URL}/storage/${imagePath}`;
-  };
-
+ 
   return (
     <div className="space-y-6">
       {error && (
