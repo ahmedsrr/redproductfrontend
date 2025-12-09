@@ -170,7 +170,7 @@ export const api = {
     } catch (error: any) {
         console.warn("API Hôtels inaccessible ou vide, utilisation des données locales (Mock).", error);
         
-        // DONNÉES DE SECOURS (MOCK AVEC IMAGES LOCALES)
+        // DONNÉES DE SECOURS (MOCK AVEC IMAGES LOCALES). Ces donnees ne sont plus utilisees car le backend fonctionne
         // Les images doivent être placées dans le dossier 'public/images/hotels/'
         return [
           {
