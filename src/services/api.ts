@@ -189,7 +189,7 @@ export const api = {
   getHotels: async (search: string = ''): Promise<Hotel[]> => {
     // DONNÉES DE SECOURS (MOCK)
     const mockHotels = 
-        return [
+            [
           {
             id: 1,
             name: "Hôtel Terrou-Bi",
