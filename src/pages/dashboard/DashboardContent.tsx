@@ -36,7 +36,7 @@ export const DashboardContent = () => {
     },
     { 
       label: 'Hôtels', 
-      value: '40', 
+      value: '8', 
       desc: 'Je ne sais pas quoi mettre', 
       icon: Icons.P_Letter, 
       color: 'bg-[#9C27B0]', // Darker Purple
